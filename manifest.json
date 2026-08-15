@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Simplify — read any page at your level",
+  "name": "Simplify — read at your language level",
   "version": "1.0.0",
   "description": "Rewrites the page you are reading into simpler language, in the same language. Bring your own API key.",
   "permissions": ["storage", "activeTab", "scripting"],
