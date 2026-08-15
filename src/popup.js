@@ -18,12 +18,18 @@ const MODELS = {
 
 const KEY_HINT = { anthropic: "sk-ant-…", openai: "sk-…" };
 
+const KEY_CONSOLE = {
+  anthropic: "https://console.anthropic.com/settings/keys",
+  openai: "https://platform.openai.com/api-keys"
+};
+
 const els = {
   levels: document.querySelectorAll(".lvl"),
   providers: document.querySelectorAll(".prov"),
   levelHint: document.getElementById("levelHint"),
   model: document.getElementById("model"),
   apiKey: document.getElementById("apiKey"),
+  keyHelp: document.getElementById("keyHelp"),
   run: document.getElementById("run"),
   restore: document.getElementById("restore"),
   status: document.getElementById("status")
@@ -56,6 +62,7 @@ function selectProvider(next) {
   els.model.value = models[next];
   els.apiKey.value = keys[next];
   els.apiKey.placeholder = KEY_HINT[next];
+  els.keyHelp.href = KEY_CONSOLE[next];
   chrome.storage.local.set({ provider: next });
 }
 

@@ -171,6 +171,27 @@ h1::after {
 /* Second label inside a section that already opened with one. */
 .label-stacked { margin-top: 14px; }
 
+/* A label with a link sitting at the far end of the same line. */
+.label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.label-link {
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair);
+}
+
+.label-link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 
 .hint {
   margin: 8px 0 0;

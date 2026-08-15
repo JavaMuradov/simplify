@@ -92,7 +92,8 @@ async function runBatch(batch, settings) {
 
   const reply = await chrome.runtime.sendMessage({
     type: "SIMPLIFY_BATCH",
-    payload: { blocks: payload, ...settings }
+    // The page's own declared language, so the prompt never has to guess.
+    payload: { blocks: payload, lang: document.documentElement.lang || "", ...settings }
   });
 
   if (!reply?.ok) throw new Error(reply?.error || "No response from the extension.");

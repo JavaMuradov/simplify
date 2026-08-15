@@ -18,12 +18,23 @@ const LEVEL_BRIEF = {
   B2: "moderately complex sentences allowed, but no rare vocabulary, no nested clauses, no bureaucratic phrasing"
 };
 
-function buildSystemPrompt(level) {
+/**
+ * `lang` is whatever the page declared in <html lang>. Naming a language by way
+ * of example here is a trap: it becomes the only concrete language in the
+ * prompt and batches drift toward it. Ground the rule in the page's own value
+ * or leave it abstract.
+ */
+function buildSystemPrompt(level, lang) {
+  const langRule = lang
+    ? `1. Write every block in the language of the input, which this page declares as "${lang}". Never translate into any other language.`
+    : "1. Write every block in THE SAME LANGUAGE as that block's input. Never translate into any other language.";
+
   return [
     "You simplify text for readers who find the original hard to follow.",
     "",
     "Absolute rules:",
-    "1. Write in THE SAME LANGUAGE as the input. Never translate. If the input is Dutch, the output is Dutch.",
+    langRule,
+    "   If your output for a block is not in the same language as that block's input, you have made an error. Check before answering.",
     "2. Preserve every fact: names, numbers, dates, amounts, negations, conditions, and qualifiers such as 'may', 'only', 'not'.",
     "3. Do not add information, opinions, or explanations that were not in the original.",
     "4. Do not summarise. Each block keeps its full meaning. Roughly similar length is fine; shorter is fine; do not drop content.",
@@ -53,17 +64,50 @@ async function keyFor(provider) {
   return key;
 }
 
-async function simplifyBatch({ blocks, level, model, provider = "anthropic" }) {
+async function simplifyBatch({ blocks, level, model, provider = "anthropic", lang }) {
   const apiKey = await keyFor(provider);
   const call = provider === "openai" ? callOpenAI : callAnthropic;
   const { text, usage } = await call({
-    system: buildSystemPrompt(level),
+    system: buildSystemPrompt(level, lang),
     input: JSON.stringify(blocks),
     apiKey,
     model
   });
 
-  return { results: parseJsonArray(text), usage };
+  return { results: await dropTranslated(blocks, parseJsonArray(text)), usage };
+}
+
+/**
+ * The prompt asks for the input's language; it cannot guarantee it. Whole
+ * batches occasionally come back translated, so every block is verified and a
+ * mismatched one is discarded — content.js leaves those paragraphs untouched,
+ * which is always better than silently replacing them with another language.
+ */
+async function detect(text) {
+  if (!text || text.length < 40) return "";
+  const r = await chrome.i18n.detectLanguage(text);
+  const top = (r.languages || [])[0];
+  if (!r.isReliable || !top || top.percentage < 70) return "";
+  return top.language.split("-")[0];
+}
+
+async function dropTranslated(inputs, results) {
+  const source = new Map(inputs.map((b) => [b.i, b.t]));
+  const kept = [];
+
+  for (const r of results) {
+    const original = source.get(r.i);
+    if (!original || typeof r.t !== "string") continue;
+
+    const [was, now] = await Promise.all([detect(original), detect(r.t)]);
+    if (was && now && was !== now) {
+      console.warn(`[Simplify] dropped block ${r.i}: ${was} became ${now}`);
+      continue;
+    }
+    kept.push(r);
+  }
+
+  return kept;
 }
 
 async function callAnthropic({ system, input, apiKey, model }) {

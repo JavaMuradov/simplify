@@ -33,7 +33,11 @@
   </section>
 
   <section class="field">
-    <label class="label" for="apiKey">Your API key</label>
+    <div class="label-row">
+      <label class="label" for="apiKey">Your API key</label>
+      <a class="label-link" id="keyHelp" href="https://console.anthropic.com/settings/keys"
+         target="_blank" rel="noreferrer">Where to get one ↗</a>
+    </div>
     <input id="apiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" />
     <p class="hint">Stays on this device.</p>
   </section>
