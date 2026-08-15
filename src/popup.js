@@ -110,10 +110,13 @@ async function send(message) {
   }
   try {
     await ensureInjected(tab.id);
-    return await chrome.tabs.sendMessage(tab.id, message);
-  } catch (_) {
+  } catch (e) {
+    console.warn("[Simplify] injection failed:", e);
     throw new Error("This page cannot be simplified.");
   }
+
+  // Past injection, a failure is a real one — let its message reach the user.
+  return chrome.tabs.sendMessage(tab.id, message);
 }
 
 els.run.addEventListener("click", async () => {
@@ -128,9 +131,14 @@ els.run.addEventListener("click", async () => {
   setStatus("Working through the page…");
 
   try {
+    // The service worker reads the key from storage, so commit it first: the
+    // input's change event has not fired if the field still has focus.
+    keys[provider] = apiKey;
+    await chrome.storage.local.set({ [`key_${provider}`]: apiKey });
+
     const r = await send({
       type: "RUN_SIMPLIFY",
-      settings: { level, apiKey, provider, model: els.model.value }
+      settings: { level, provider, model: els.model.value }
     });
 
     if (r?.ok) {

@@ -40,7 +40,21 @@ function buildSystemPrompt(level) {
   ].join("\n");
 }
 
-async function simplifyBatch({ blocks, level, apiKey, model, provider = "anthropic" }) {
+/**
+ * Read straight from storage rather than accepting the key in the message.
+ * The popup talks to the content script, so a key passed that way would sit in
+ * the reader's tab; this keeps it inside the extension's own contexts.
+ */
+async function keyFor(provider) {
+  const s = await chrome.storage.local.get([`key_${provider}`, "apiKey"]);
+  // s.apiKey is the pre-provider storage shape, kept so an existing key survives.
+  const key = s[`key_${provider}`] || (provider === "anthropic" ? s.apiKey : "");
+  if (!key) throw new Error("No API key saved for this provider.");
+  return key;
+}
+
+async function simplifyBatch({ blocks, level, model, provider = "anthropic" }) {
+  const apiKey = await keyFor(provider);
   const call = provider === "openai" ? callOpenAI : callAnthropic;
   const { text, usage } = await call({
     system: buildSystemPrompt(level),
