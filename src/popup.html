@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="head">
+    <h1>Simplify</h1>
+    <p class="kicker">Read any page at your language level</p>
+    <p class="tag">Same language. <em>Simplified.</em></p>
+  </header>
+
+  <section class="field">
+    <span class="label">Reading level</span>
+    <div class="levels" role="radiogroup" aria-label="Reading level">
+      <button class="lvl" data-level="A1" role="radio" aria-checked="false">A1</button>
+      <button class="lvl" data-level="A2" role="radio" aria-checked="false">A2</button>
+      <button class="lvl" data-level="B1" role="radio" aria-checked="true">B1</button>
+      <button class="lvl" data-level="B2" role="radio" aria-checked="false">B2</button>
+    </div>
+    <p class="hint" id="levelHint">Plain language most adults read comfortably.</p>
+  </section>
+
+  <section class="field">
+    <span class="label">Provider</span>
+    <div class="providers" role="radiogroup" aria-label="Provider">
+      <button class="prov" data-provider="anthropic" role="radio" aria-checked="true">Anthropic</button>
+      <button class="prov" data-provider="openai" role="radio" aria-checked="false">OpenAI</button>
+    </div>
+    <label class="label label-stacked" for="model">Model</label>
+    <select id="model"></select>
+  </section>
+
+  <section class="field">
+    <label class="label" for="apiKey">Your API key</label>
+    <input id="apiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" />
+    <p class="hint">Kept on this device. Sent only to the provider you pick, never to us — there is no server.</p>
+  </section>
+
+  <div class="actions">
+    <button id="run" class="primary">Simplify this page</button>
+    <button id="restore" class="ghost">Show original</button>
+  </div>
+
+  <p class="status" id="status" role="status"></p>
+
+  <p class="fineprint">From language learners, for language learners.</p>
+</body>
+<script src="popup.js"></script>
+</html>

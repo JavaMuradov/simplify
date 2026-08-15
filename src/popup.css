@@ -1,0 +1,299 @@
+/* ---------- fonts ---------- *
+ * Bundled locally rather than fetched from Google, so the popup renders
+ * with no network and nothing is requested at runtime.
+ */
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("fonts/newsreader-var.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("fonts/newsreader-var-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Courier Prime";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/courier-prime-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Courier Prime";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/courier-prime-700.woff2") format("woff2");
+}
+
+:root {
+  --ground: #efe9dd;
+  --ground-2: #e5ded0;
+  --ink: #141c2b;
+  --ink-2: #4a5364;
+  --muted: #767e8c;
+  --accent: #2c4a8f;
+  --hair: rgba(20, 28, 43, 0.16);
+  --warn: #9a4a32;
+
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --mono: "Courier Prime", ui-monospace, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+/* Keeps body's background on body instead of letting it propagate to the
+   canvas, so the grain overlay has something to blend against. */
+html { background: var(--ground); }
+
+body {
+  width: 360px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 11.5px/1.9 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+/* ---------- head ---------- */
+
+.head {
+  padding: 13px 18px 14px;
+  border-bottom: 1px solid var(--hair);
+  background: var(--ground-2);
+}
+
+h1 {
+  margin: 0;
+  font: 600 19px/1 var(--serif);
+  letter-spacing: -0.02em;
+}
+
+/* The one place a period does real work. */
+h1::after {
+  content: ".";
+  color: var(--accent);
+}
+
+.kicker {
+  margin: 10px 0 0;
+  font: 400 10px/1.6 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tag {
+  margin: 3px 0 0;
+  font: 400 19px/1.25 var(--serif);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.tag em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* ---------- fields ---------- */
+
+.field {
+  padding: 13px 18px 12px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.label {
+  display: block;
+  margin-bottom: 9px;
+  font: 700 10px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---------- level buttons ---------- *
+ * Four square buttons across; the selected one is described in full by the
+ * hint line below, from LEVEL_HINTS in popup.js.
+ *
+ * Selection is a blue rule and blue type, never a blue fill: the transparent
+ * 2px bottom border is always present so the selected state does not shift
+ * the row by two pixels.
+ */
+
+.levels,
+.providers {
+  display: flex;
+  gap: 6px;
+}
+
+.lvl,
+.prov {
+  flex: 1;
+  padding: 9px 2px 8px;
+  border: 1px solid var(--hair);
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 700 12px/1 var(--mono);
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+
+.prov {
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.lvl:hover,
+.prov:hover {
+  border-color: var(--ink-2);
+  color: var(--ink);
+}
+
+.lvl[aria-checked="true"],
+.prov[aria-checked="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Second label inside a section that already opened with one. */
+.label-stacked { margin-top: 14px; }
+
+
+.hint {
+  margin: 8px 0 0;
+  font: 400 11px/1.9 var(--mono);
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+/* ---------- inputs ---------- */
+
+input,
+select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--hair);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 400 11.5px/1.6 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+input::placeholder { color: var(--muted); }
+
+/* Native select styling is rounded and blue on macOS, so it is replaced with
+   a drawn caret. */
+select {
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23141C2B' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---------- actions ---------- */
+
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 14px 18px 0;
+}
+
+.primary,
+.ghost {
+  padding: 10px 12px;
+  border-radius: 0;
+  font: 700 10px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.primary {
+  flex: 1;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--ground);
+}
+
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ghost {
+  border: 1px solid var(--hair);
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.status {
+  margin: 0;
+  padding: 10px 18px 12px;
+  min-height: 15px;
+  font: 400 11px/1.9 var(--mono);
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.status[data-tone="error"] { color: var(--warn); }
+
+/* Fine print closing the panel, above the frame edge. */
+.fineprint {
+  margin: 0;
+  padding: 11px 18px 13px;
+  border-top: 1px solid var(--hair);
+  font: 400 9.5px/1.7 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- grain overlay ---------- *
+ * Analog texture over the flat ground. feTurbulence is rendered once into a
+ * 120x120 tile so the grain keeps its native density instead of being
+ * stretched across the popup. Decorative only: pointer-events none, so it
+ * never intercepts a click on the controls underneath.
+ */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* Readability wins over texture for anyone who has asked for more contrast. */
+@media (prefers-contrast: more) {
+  body::after { display: none; }
+}
