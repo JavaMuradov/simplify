@@ -11,7 +11,7 @@ Bring your own API key, from **Anthropic or OpenAI**. There is no server, no acc
 ## Install (development)
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/JavaMuradov/simplify.git
 cd simplify
 ```
 
