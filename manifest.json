@@ -12,8 +12,7 @@
     "128": "src/icons/icon128.png"
   },
   "background": {
-    "service_worker": "src/background.js",
-    "type": "module"
+    "service_worker": "src/background.js"
   },
   "action": {
     "default_popup": "src/popup.html",

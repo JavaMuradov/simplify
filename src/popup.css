@@ -57,9 +57,10 @@ html { background: var(--ground); }
 
 body {
   width: 360px;
+  max-width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--ground);
   color: var(--ink);
   font: 400 11.5px/1.9 var(--mono);
@@ -156,10 +157,12 @@ h1::after {
   text-transform: uppercase;
 }
 
-.lvl:hover,
-.prov:hover {
-  border-color: var(--ink-2);
-  color: var(--ink);
+@media (hover: hover) {
+  .lvl:hover,
+  .prov:hover {
+    border-color: var(--ink-2);
+    color: var(--ink);
+  }
 }
 
 .lvl[aria-checked="true"],
@@ -187,9 +190,11 @@ h1::after {
   border-bottom: 1px solid var(--hair);
 }
 
-.label-link:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+@media (hover: hover) {
+  .label-link:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
 }
 
 
@@ -269,9 +274,11 @@ button:focus-visible {
   color: var(--ink-2);
 }
 
-.ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+@media (hover: hover) {
+  .ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
 }
 
 .status {
@@ -294,6 +301,35 @@ button:focus-visible {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* ---------- touch ---------- *
+ * On iOS the popup is a sheet and every control is hit with a thumb, so the
+ * rows grow to a comfortable target. Keyed to the pointer rather than the
+ * viewport, which leaves the desktop popup pixel-identical.
+ */
+
+@media (pointer: coarse) {
+  .lvl,
+  .prov {
+    padding: 14px 2px 13px;
+    font-size: 14px;
+  }
+
+  .prov { font-size: 12px; }
+
+  .primary,
+  .ghost {
+    padding: 16px 12px;
+  }
+
+  /* Safari zooms the page in when a field below 16px takes focus, and the
+     popup cannot be zoomed back out. */
+  input,
+  select {
+    padding: 13px 10px;
+    font-size: 16px;
+  }
 }
 
 /* ---------- grain overlay ---------- *

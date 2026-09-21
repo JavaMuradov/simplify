@@ -1,0 +1,45 @@
+{
+  "note": "facts are substrings that must survive simplification verbatim. negations are words whose disappearance would invert meaning. Substring matching produces false alarms when the model legitimately reformats a number or date, so every failure is printed in full for a human to judge.",
+  "blocks": [
+    {
+      "id": "nl-subsidy",
+      "lang": "nl",
+      "text": "De gemeente Amsterdam heeft op 12 maart 2024 besloten dat de subsidie van 4,5 miljoen euro niet wordt verlengd. Bewoners die vóór 1 januari een aanvraag hebben ingediend, kunnen mogelijk een uitzondering krijgen, maar alleen als hun jaarinkomen onder de 32.000 euro ligt.",
+      "facts": ["Amsterdam", "12 maart 2024", "4,5 miljoen", "1 januari", "32.000"],
+      "negations": ["niet"],
+      "qualifiers": ["mogelijk", "alleen"]
+    },
+    {
+      "id": "nl-medical",
+      "lang": "nl",
+      "text": "De onderzoekers benadrukken dat het geneesmiddel de ziekteprogressie vertraagt, maar deze niet stopt. In de gerandomiseerde studie onder 1.204 deelnemers trad bij 7 procent een ernstige bijwerking op, tegenover 3 procent in de controlegroep.",
+      "facts": ["1.204", "7 procent", "3 procent"],
+      "negations": ["niet"],
+      "qualifiers": []
+    },
+    {
+      "id": "ru-export",
+      "lang": "ru",
+      "text": "Согласно отчёту, опубликованному 3 февраля 2023 года, объём экспорта сократился на 17 процентов. Компания не планирует закрывать завод в Новосибирске, однако руководство предупредило, что это решение может измениться, если цены не вырастут до конца года.",
+      "facts": ["3 февраля 2023", "17", "Новосибирске"],
+      "negations": ["не"],
+      "qualifiers": ["может"]
+    },
+    {
+      "id": "ru-court",
+      "lang": "ru",
+      "text": "Суд постановил, что истец обязан выплатить 250 тысяч рублей в течение тридцати дней. Апелляция не приостанавливает исполнение решения, за исключением случаев, когда судья прямо укажет иное.",
+      "facts": ["250 тысяч", "тридцати"],
+      "negations": ["не"],
+      "qualifiers": ["за исключением"]
+    },
+    {
+      "id": "en-funding",
+      "lang": "en",
+      "text": "The committee reported that only 23 of the 140 applications submitted before 15 September 2022 were approved. Funding will not be released until the audit concludes, although officials said an interim payment of 8,500 pounds may be authorised in exceptional cases.",
+      "facts": ["23", "140", "15 September 2022", "8,500"],
+      "negations": ["not"],
+      "qualifiers": ["only", "may"]
+    }
+  ]
+}

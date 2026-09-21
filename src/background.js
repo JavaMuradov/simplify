@@ -85,10 +85,106 @@ async function simplifyBatch({ blocks, level, model, provider = "anthropic", lan
  */
 async function detect(text) {
   if (!text || text.length < 40) return "";
+  return HAS_NATIVE_DETECT ? detectNative(text) : detectByShape(text);
+}
+
+// Safari implements no i18n.detectLanguage. Without a fallback the throw
+// propagates through dropTranslated and every batch on the page reports as
+// failed, so this is checked once rather than per call.
+const HAS_NATIVE_DETECT = typeof chrome.i18n?.detectLanguage === "function";
+
+async function detectNative(text) {
   const r = await chrome.i18n.detectLanguage(text);
   const top = (r.languages || [])[0];
   if (!r.isReliable || !top || top.percentage < 70) return "";
   return top.language.split("-")[0];
+}
+
+/**
+ * A deliberately narrow stand-in, not a language identifier. dropTranslated
+ * asks one question — are these two texts in different languages — and the
+ * case it guards against is a block coming back translated, nearly always
+ * into English. Script settles that outright for Cyrillic, Greek, Arabic,
+ * Hebrew, CJK, Thai and Devanagari; Latin scripts are told apart by their
+ * most frequent function words, which are short, ubiquitous and rarely
+ * borrowed between languages.
+ *
+ * Its codes are not interchangeable with the Chrome path's — a Russian block
+ * is "cyrl" here and "ru" there. That is fine because both sides of every
+ * comparison come from the same detector.
+ */
+const SCRIPTS = [
+  ["cyrl", /[\u0400-\u04FF]/g],
+  ["grek", /[\u0370-\u03FF]/g],
+  ["arab", /[\u0600-\u06FF]/g],
+  ["hebr", /[\u0590-\u05FF]/g],
+  ["hang", /[\uAC00-\uD7AF]/g],
+  ["kana", /[\u3040-\u30FF]/g],
+  ["han", /[\u4E00-\u9FFF]/g],
+  ["thai", /[\u0E00-\u0E7F]/g],
+  ["deva", /[\u0900-\u097F]/g],
+  ["latn", /[A-Za-z\u00C0-\u024F]/g]
+];
+
+const MARKERS = {
+  en: ["the", "and", "of", "to", "is", "in", "that", "it", "for", "was", "with", "not", "are", "this"],
+  nl: ["de", "het", "een", "en", "van", "is", "dat", "niet", "zijn", "voor", "met", "op", "aan", "worden"],
+  de: ["der", "die", "das", "und", "ist", "nicht", "den", "von", "zu", "mit", "für", "auf", "werden", "dem"],
+  fr: ["le", "la", "les", "et", "est", "des", "que", "ne", "pas", "pour", "dans", "avec", "une", "sur"],
+  es: ["el", "los", "las", "y", "es", "de", "que", "no", "para", "con", "por", "una", "del", "se"],
+  it: ["il", "le", "è", "di", "che", "non", "per", "con", "una", "dei", "sono", "del", "nel", "alla"],
+  pt: ["os", "as", "é", "de", "que", "não", "para", "com", "uma", "dos", "por", "se", "mais", "como"],
+  da: ["og", "af", "til", "er", "det", "som", "ikke", "har", "med", "for", "den", "kan", "skal", "være"],
+  sv: ["och", "att", "det", "som", "är", "för", "inte", "med", "har", "den", "till", "kan", "ska", "vara"],
+  pl: ["nie", "się", "jest", "że", "na", "do", "od", "przez", "oraz", "lub", "być", "który", "tego", "jak"],
+  tr: ["ve", "bir", "bu", "için", "ile", "olarak", "daha", "değil", "olan", "gibi", "kadar", "sonra", "veya", "ancak"]
+};
+
+function scriptOf(text) {
+  let best = "";
+  let bestCount = 0;
+
+  for (const [name, re] of SCRIPTS) {
+    const n = (text.match(re) || []).length;
+    if (n > bestCount) {
+      bestCount = n;
+      best = name;
+    }
+  }
+
+  // Punctuation and digits are script-neutral, so a block is only called for a
+  // script once a clear share of its characters belong to one.
+  return bestCount >= text.length * 0.15 ? best : "";
+}
+
+function detectByShape(text) {
+  const script = scriptOf(text);
+  if (script !== "latn") return script;
+
+  const words = new Set(text.toLowerCase().match(/[a-z\u00DF-\u024F]+/g) || []);
+  if (words.size < 8) return "";
+
+  let best = "";
+  let bestScore = 0;
+  let runnerUp = 0;
+
+  for (const lang in MARKERS) {
+    let score = 0;
+    for (const marker of MARKERS[lang]) if (words.has(marker)) score++;
+
+    if (score > bestScore) {
+      runnerUp = bestScore;
+      bestScore = score;
+      best = lang;
+    } else if (score > runnerUp) {
+      runnerUp = score;
+    }
+  }
+
+  // Standing in for the isReliable / 70% bar the Chrome path applies: report
+  // an ambiguous block as unknown so dropTranslated keeps it rather than
+  // discarding text that was never actually translated.
+  return bestScore >= 3 && bestScore >= runnerUp + 2 ? best : "";
 }
 
 async function dropTranslated(inputs, results) {
